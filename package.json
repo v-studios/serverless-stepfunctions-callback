@@ -1,0 +1,24 @@
+{
+  "name": "serverless-stepfunctions-callback",
+  "version": "1.0.0",
+  "description": "Demonstrate Serverless Framework with Step Function callback to restart",
+  "dependencies": {
+    "serverless": "^1.50.0",
+    "serverless-pseudo-parameters": "^2.4.0",
+    "serverless-step-functions": "^2.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/v-studios/serverless-stepfunctions-callback.git"
+  },
+  "author": "Chris Shenton <chris@v-studios.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/v-studios/serverless-stepfunctions-callback/issues"
+  },
+  "homepage": "https://github.com/v-studios/serverless-stepfunctions-callback#readme"
+}
