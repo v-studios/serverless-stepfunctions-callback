@@ -1,0 +1,72 @@
+service: serverless-stepfunctions-callback
+
+plugins:
+  - serverless-pseudo-parameters
+  - serverless-step-functions
+
+provider:
+  name: aws
+  runtime: python3.7
+  logRetentionInDays: 7
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+      - states:SendTaskFailure
+      - states:SendTaskSuccess
+      Resource: 
+      - "arn:aws:states:#{AWS::Region}:#{AWS::AccountId}:states:SendTaskSuccess"
+      - Ref: CallbackExampleStepFunctionsStateMachine
+
+package:
+  include:
+  - handler.py
+  exclude:
+  - "*~"
+  - .venv3/**
+  - README.rst
+  - node_modules/**
+  - package-lock.json
+
+functions:
+  SplitDoc:
+    handler: handler.split_doc
+  ProcessAndCheckCompletion:
+    handler: handler.process_and_check_completion
+
+stepFunctions:
+  stateMachines:
+    CallbackExample:
+      events:                   # start the state machine with a simulated event GET /start
+        - http:
+            path: start
+            method: GET
+      definition:
+        StartAt: SplitDoc
+        States:
+          SplitDoc:
+            Type: Task          # we could use Pass and skip the Lambda, but simulate the split
+            Resource: "arn:aws:lambda:#{AWS::Region}:#{AWS::AccountId}:function:${self:service}-${opt:stage}-SplitDoc"
+            Next: WaitForCompletion
+          WaitForCompletion:
+            Type: Task
+            Resource: arn:aws:states:::lambda:invoke.waitForTaskToken # this is the magick incantation
+            Parameters:
+              FunctionName: ${self:service}-${opt:stage}-ProcessAndCheckCompletion
+              Payload:
+                taskToken.$: $$.Task.Token            
+            Next: ContinueProcess # the happy path
+            Catch:                   # put our named failures before generic TaskFailed
+            - ErrorEquals: ["ProcessingFailed"]
+              Next: ProcessingFailed
+            - ErrorEquals: ["States.TaskFailed"] # any other problem including Lambda Python exception
+              Next: UnexpectedFailure
+          ContinueProcess:
+            Type: Succeed
+          ProcessingFailed:
+            Type: Fail
+            Error: Processing failed
+            Cause: We caught a problem when processing so we should clean up the artifacts
+          UnexpectedFailure:
+            Type: Fail
+            Error: Unexpected failure
+            Cause: Some unexpected error occurred, possibly a Lambda function exception, check logs
