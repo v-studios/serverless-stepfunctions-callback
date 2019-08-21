@@ -38,10 +38,9 @@ Demo Implementation
 
 This demo code skips the complexity of our real app, allowing us to
 focus on the statemachine stop and restart. We'll use a random chance
-to decide when we're done, and add to it a chance that the processing
-function fails, so we can signal the failure. Our statemachine has a
-handler for this, so it can do different things on success and
-failure.
+to decide when we're done, and a chance that the processing function
+fails, so we can signal the failure. Our statemachine has a handler
+for this, so it can do different things on success and failure.
 
 Our preferred backend language is Python, so that's what we'll use for
 our Lambda handler. Translating to Node or some other Lambda language
@@ -61,4 +60,71 @@ Takahiro Horike's `Step Function plugin
 <https://github.com/horike37/serverless-step-functions>`_ for the
 Serverless Framework makes it a breeze to describe state machines
 directly in our ``serverless.yml`` file.
+
+Get it Running
+==============
+
+Install the dependencies::
+
+  npm install
+
+Assuming you've set your AWS credentials in your environment (we set
+AWS_PROFILE), deploy with Serverless; we use the default us-east-1
+region and stage ``dev``::
+
+  sls deploy
+
+When done, you should see your functions and an HTTP endpoint we created to start the state machine::
+
+  Serverless: Packaging service...
+  ...
+  Serverless: Stack update finished...
+  Service Information
+  service: serverless-stepfunctions-callback
+  stage: dev
+  region: us-east-1
+  stack: serverless-stepfunctions-callback-dev
+  resources: 15
+  api keys:
+    None
+  endpoints:
+  functions:
+    SplitDoc: serverless-stepfunctions-callback-dev-SplitDoc
+    ProcessAndCheckCompletion: serverless-stepfunctions-callback-dev-ProcessAndCheckCompletion
+  layers:
+    None
+  Serverless StepFunctions OutPuts
+  endpoints:
+    GET - https://yoururlhere.execute-api.us-east-1.amazonaws.com/dev/start
+
+In the AWS console, you should see your state machine under `Step
+Functions - State machines
+<https://console.aws.amazon.com/states/home#/statemachines>`_.
+
+.. image:: doc/aws-console-statemachine.png
+   :width: 100%
+
+You can get details by clicking on the name; click the Definition tab to get the diagram.
+
+.. image:: doc/statemachine-diagram.png
+   :width: 100%
+
+Under the "Executions" tab, you can "Start execution", and leave the
+default input alone. Depending on chance, it should go through
+``ContinueProcess`` and succeed, or ``ProcessingFailed`` and fail. We
+can examine the inputs and outputs of each state, so here we look at
+``ContinueProcess``:
+
+.. image:: doc/statemachine-success.png
+   :width: 50%
+.. image:: doc/statemachine-success-details.png
+   :width: 45%
+
+For the failure case, we examine at ``ProcessingFailed`` and can see
+it has an ``Exception`` instead of ``Output``:
+
+.. image:: doc/statemachine-failed.png
+   :width: 50%
+.. image:: doc/statemachine-failed-details.png
+   :width: 45%
 
