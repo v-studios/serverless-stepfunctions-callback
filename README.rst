@@ -8,14 +8,14 @@ state machine from within a Lambda function. It took me a while to dig
 through the AWS docs, sample code, and examples to unlock the
 mysteries, so I hope it saves you some time.
 
-It is inspired by `Ross Rhodes' tweet
-<https://twitter.com/trrhodes/status/1160958680537489408>`_ on the
-same topic. He used the AWS Cloud Development Kit and SQS, but I'll be
-using the Serverless Framework with direct Lambda calls because it's a
-pattern that comes up repeately in our use cases. `Ben Kehoe wrote an
+It is inspired by `Ross Rhodes' tweet on callbacks with Step Functions
+<https://twitter.com/trrhodes/status/1160958680537489408>`_. He used
+the AWS Cloud Development Kit and SQS, but I'll be using the
+Serverless Framework with direct Lambda calls because it's a pattern
+that comes up repeately in our use cases. `Ben Kehoe wrote an
 excellent AWS Blog post
 <https://aws.amazon.com/blogs/aws/using-callback-urls-for-approval-emails-with-aws-step-functions/>`_
-on the same topic; he's using SNS Email for human approvals. 
+on the same topic; he's using SNS Email for human approvals.
 
 The SNS is also not exactly alined with our current use cases, but
 SQS- and SNS-driven restarts are both likely something we'll need at
