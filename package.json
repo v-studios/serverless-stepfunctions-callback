@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Demonstrate Serverless Framework with Step Function callback to restart",
   "dependencies": {
-    "serverless": "^1.50.0",
+    "serverless": "^1.83.3",
     "serverless-pseudo-parameters": "^2.4.0",
     "serverless-step-functions": "^2.5.0"
   },
